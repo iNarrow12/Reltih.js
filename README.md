@@ -13,9 +13,12 @@
 
 ## `$ Overview`
 
-Reltih.js is a highly stealthy fingerprinting and reconnaissance framework designed for **authorized Red Team operations**. It deploys a persuasive "Zero-Trust Security" facade (GuardSync) to deceive targets, while covertly extracting deep browser telemetry, hardware specifications, live location data, and webcam captures before gaining internal access. 
+Reltih.js is a highly stealthy fingerprinting and reconnaissance framework designed for ** Red Team operations**. It deploys a persuasive "Zero-Trust Security" facade (GuardSync) to deceive targets, while covertly extracting deep browser telemetry, hardware specifications, live location data, and webcam captures before gaining internal access. 
 
-> **This tool is strictly for educational purposes and authorized penetration testing only. Unauthorized use is illegal.**
+Mentions: Font end is fully vibe coded, so if you have any errors, sorry for that'
+PRO-TIPS: You Need to send the session/<client-id>.jswon to a ai agent to discover more about the target browser snice the dashboard gives you a small output abot overall data, and I highly recommend you to check the sessions manually or using AI, because, as I told you can discover a lot of bugs and vulnerabilities, data for a specific target
+
+> **This tool is strictly for educational purposes and  penetration testing only. Un use is illegal.**
 
 ---
 
@@ -205,7 +208,7 @@ Database/
 
 ## `$ License`
 
-MIT — For authorized security research, red teaming, and educational use only.
+MIT — For  security research, red teaming, and educational use only.
 
 <div align="center">
 
