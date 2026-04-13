@@ -21,17 +21,13 @@ Reltih.js is a highly stealthy fingerprinting and reconnaissance framework desig
 
 ## `$ Screenshots`
 
-<div align="center">
+### `$GuardSync Phishing Facade`
 
-### 🎣 GuardSync Phishing Facade
+![Client Phishing Page / GuardSync](https://github.com/iNarrow12/Reltih.js/blob/main/src/Screenshot%202026-04-13%20201559.png?raw=true)
 
-![Client Phishing Page / GuardSync](./target-phishing.png)
+### `$Command Dashboard`
 
-### 💻 Command Dashboard
-
-![Dashboard Page](./dashboard-panel.png)
-
-</div>
+![Dashboard Page](https://github.com/iNarrow12/Reltih.js/blob/main/src/Screenshot%202026-04-13%20214855.png?raw=true)
 
 ---
 
