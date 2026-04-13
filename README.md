@@ -1,6 +1,6 @@
 <div align="center">
 
-![header](https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&text=Reltih.js&fontAlignY=35&fontColor=ffff&desc=%20Advanced%20Red%20Team%20Reconnaissance%20%26%20Browser%20Intelligence)
+![header](https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&text=Reltih.js&fontAlignY=42)
 
 ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-Waitress-000000?style=for-the-badge&logo=flask&logoColor=white)
