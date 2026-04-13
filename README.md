@@ -190,17 +190,28 @@ Red Teamer views deep intelligence on Dashboard
 
 ---
 
-## `$ Logging`
+## `$ Database Structure & Client IDs`
 
-All intelligence is securely stored inside the `Database/` directory per-device structure:
+Reltih.js dynamically assigns a persistent **Client ID** to every target based on a 16-character hardware `stableHash` computed from their browser footprint. Even if the target changes their IP address or returns days later, their ID will remain the same.
 
-```
+All intelligence is organized inside the `Database/` directory mapped by these Client IDs:
+
+```text
 Database/
-└── <DeviceID_Hex>/
-    ├── meta.json                # Aggregate trust scores and hardware profile
-    ├── sessions/                # Raw telemetry JSONs per interaction
-    ├── locations/               # GPS tracking trails
-    └── camshots/                # Captured target images (.png)
+└── [Client_ID_Hex_Hash]/        # e.g. 4d95af47e2f25a90 
+    │
+    ├── meta.json                # Aggregated summary (Trust scores, IPs, hardware profile, flags)
+    │
+    ├── sessions/
+    │   └── [timestamp].json     # Raw, deep telemetry blocks for every single interaction
+    │
+    ├── locations/
+    │   ├── log.json             # Raw GPS coordinate payloads
+    │   └── trail.json           # Movement history tracked over time
+    │
+    └── camshots/
+        ├── 20260413_233156_shot1.png  # Surreptitiously captured webcam snapshots
+        └── 20260413_233202_shot2.png
 ```
 
 ---
