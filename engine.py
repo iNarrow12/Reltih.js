@@ -18,7 +18,6 @@ class FeatureVectorBuilder:
 
     def build(self, fp: dict) -> dict:
         audio_raw = self._safe(fp, "hardware.audio", {})
-        # fix: audio returns {} when blocked — treat as missing not a signal
         audio_sig = audio_raw.get("hash","") if isinstance(audio_raw, dict) else str(audio_raw)
 
         return {
@@ -123,7 +122,6 @@ class FeatureVectorBuilder:
 
 class AnomalyDetector:
 
-    # (condition_fn, flag, weight)
     RULES = [
         (lambda v: v["ram_gb"] == 4 and v["gpu_tier"] >= 8,
          "low_ram_high_end_gpu", 0.4),
@@ -164,13 +162,10 @@ class AnomalyDetector:
         (lambda v: v["cpu_cores"] == 0,
          "cpu_cores_not_reported", 0.2),
 
-        # new: flag empty audio when WebGL is also weak — likely hardened browser
         (lambda v: not v.get("audio_available") and v["sandbox_score"] < 0.3,
          "audio_blocked_non_sandbox", 0.25),
     ]
 
-    # tz/language pairs where mismatch is EXPECTED (not suspicious)
-    # format: (language_prefix, tz_prefix_whitelist)
     EXPECTED_MISMATCHES = [
         ("en-US", ["Asia/","Europe/","Pacific/","Australia/","Africa/"]),
         ("en-GB", ["Asia/","America/","Pacific/","Australia/","Africa/"]),
@@ -231,14 +226,11 @@ class AnomalyDetector:
         tz   = fv.get("timezone","")
         lang = fv.get("language","")
 
-        # for known expat/diaspora patterns, reduce weight significantly
         for l_prefix, tz_whitelist in self.EXPECTED_MISMATCHES:
             if lang.startswith(l_prefix):
                 if any(tz.startswith(p) for p in tz_whitelist):
-                    # mismatch exists but is very common — low weight
                     return f"tz_lang_mismatch_{l_prefix}_expat", 0.05
 
-        # strict mismatches with higher weight
         strict = [
             ("ja",    lambda t: t != "Asia/Tokyo",   0.4),
             ("ko",    lambda t: t != "Asia/Seoul",   0.4),
@@ -275,9 +267,8 @@ class BehavioralEngine:
             entropy      * 0.15
         )
 
-        # fix: if data collection window was < 3s, penalize confidence not score
         data_window = self._estimate_window(beh, clicks)
-        confidence  = min(data_window / 5.0, 1.0)  # full confidence at 5s+
+        confidence  = min(data_window / 5.0, 1.0)
 
         label = (
             "bot_like" if combined < 0.25 else
@@ -285,7 +276,6 @@ class BehavioralEngine:
             "human"
         )
 
-        # downgrade label if confidence too low
         if confidence < 0.4 and label != "bot_like":
             label = "insufficient_data"
 
@@ -415,7 +405,7 @@ class NetworkIntelligence:
         timing = net.get("timing",{})
         if timing.get("cloudflare") == "timeout" and timing.get("google") == "timeout":
             flags.append("all_timing_probes_blocked")
-            score += 0.15  # reduced — Brave blocks these by default
+            score += 0.15
 
         tz_flag = self._geo_tz_mismatch(geoip, fp)
         if tz_flag:
@@ -443,7 +433,6 @@ class NetworkIntelligence:
     def _analyze_webrtc(self, webrtc, fp: dict) -> tuple:
         flags, score = [], 0.0
 
-        # fix: webrtc timeout in Brave is expected — reduce penalty
         is_brave = any(
             isinstance(b,dict) and b.get("brand","").lower() == "brave"
             for b in (fp.get("os",{}).get("highEntropy",{}).get("fullVersionList",[]) or [])
@@ -569,7 +558,6 @@ class ScoringEngine:
         behavior_s   = behavior.get("behavior_score",0.5)
         network_s    = 1 - network.get("network_risk_score",0)
 
-        # fix: if behavior label is insufficient_data, use neutral 0.5
         if behavior.get("behavior_label") == "insufficient_data":
             behavior_s = 0.5
 
@@ -598,7 +586,7 @@ class ScoringEngine:
     def _fingerprint_stability(self, fv, history) -> float:
         if not history: return 0.6
         checks = ["gpu_hash","canvas_hash","font_hash","platform","os_version"]
-        # only include audio_hash if audio was available
+        
         if fv.get("audio_available"): checks.append("audio_hash")
         prev   = history[-1]
         scores = [1.0 if fv.get(k)==prev.get(k) else 0.0 for k in checks]
@@ -662,7 +650,6 @@ class DriftDetector:
                                    "session":curr.get("session_ts",""),"severity":"low"})
                     score += 0.1
 
-            # fix: skip audio_hash drift check if audio was unavailable
             if (prev.get("audio_available") and curr.get("audio_available") and
                 prev.get("audio_hash") != curr.get("audio_hash")):
                 events.append({"type":"immutable_changed","field":"audio_hash",
