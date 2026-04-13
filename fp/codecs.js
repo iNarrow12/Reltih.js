@@ -100,7 +100,7 @@ const CodecsFingerprint = {
                 config: {
                     type: 'file',
                     video: {
-                        contentType: 'video/webm; codecs="vp9"',
+                        contentType: 'video/webm; codecs="vp09.00.10.08"',
                         width: 3840, height: 2160, bitrate: 12000000, framerate: 30
                     }
                 }
@@ -128,7 +128,7 @@ const CodecsFingerprint = {
                 keySystem: 'com.widevine.alpha',
                 configs: [{
                     initDataTypes: ['cenc'],
-                    videoCapabilities: [{ contentType: 'video/mp4; codecs="avc1.42E01E"' }]
+                    videoCapabilities: [{ contentType: 'video/mp4; codecs="avc1.42E01E"', robustness: 'SW_SECURE_CRYPTO' }]
                 }]
             },
             {
@@ -136,7 +136,7 @@ const CodecsFingerprint = {
                 keySystem: 'com.microsoft.playready',
                 configs: [{
                     initDataTypes: ['cenc'],
-                    videoCapabilities: [{ contentType: 'video/mp4; codecs="avc1.42E01E"' }]
+                    videoCapabilities: [{ contentType: 'video/mp4; codecs="avc1.42E01E"', robustness: 'SW_SECURE_CRYPTO' }]
                 }]
             },
             {
