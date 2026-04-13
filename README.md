@@ -69,10 +69,10 @@ Reltih.js is a highly stealthy fingerprinting and reconnaissance framework desig
 | **Phishing Facade** | Convincing "GuardSync" Zero-Trust login simulation |
 | **Deep Fingerprinting** | WebGL, Canvas, Audio, and Font hashing via `murmur.js` |
 | **VM/Sandbox Detection** | Evaluates CPU cores, RAM, GPU renderer, and interaction anomalies |
-| **Location Tracking** | Silent GPS and IP trailing with real-time accuracy mapping |
-| **Covert Camera** | Stealth webcam image capture and base64 remote extraction |
+| **Location Tracking** | GPS and IP trailing with real-time accuracy mapping |
+| **Covert Camera** | webcam image capture and base64 remote extraction |
 | **Risk Scoring Engine** | Evaluates trust based on hardware context, returning low/high risk flags |
-| **Live Dashboard** | Terminal-styled real-time device monitoring with session viewer |
+| **Live Dashboard** | device monitoring with session viewer |
 
 ---
 
@@ -86,7 +86,7 @@ The `fp/` directory contains the modular JavaScript payloads injected into the t
 | `browser.js` | Fingerprints the true browser brand, full version context, plugins, and feature flags. |
 | `codecs.js`  | Probes for supported media codecs, WebRTC leak points, and DRM capabilities. |
 | `core.js`    | The central orchestrator that aggregates all data payloads and tunnels them to the backend API. |
-| `environment.js`| Analyzes high-level hardware constraints (Battery, Touch, Pointer) to flag Virtual Machines. |
+| `environment.js`| Analyses high-level hardware constraints (Battery, Touch, Pointer) to flag Virtual Machines. |
 | `extensions.js`| Scans internal browser object models to detect commonly installed security extensions. |
 | `gpu_ram.js` | Profiles the graphics rendering engine, video memory, and device RAM size constraints. |
 | `hardware.js`| Enumerates CPU architecture, physical core counts, and peripheral types connected to the machine. |
