@@ -1486,7 +1486,7 @@
         ${shots.length ? shots.map(s => `
             <div class="cam-shot" onclick="openImg('/camshots/${d.device_id}/${s}')">
                 <img src="/camshots/${d.device_id}/${s}" loading="lazy">
-                <div class="cam-shot-ts">${s.split('_')[1]?.split('shot')[1]?.replace('.png', '') || s}</div>
+                <div class="cam-shot-ts">${s.split('_')[1]?.split('shot')[1]?.replace(/\.(png|jpg|jpeg)/i, '') || s}</div>
             </div>
         `).join('') : '<span style="color:var(--text-tertiary); font-family: \'JetBrains Mono\', monospace; font-size: 12px;">No images captured</span>'}
       </div>
