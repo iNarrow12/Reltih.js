@@ -222,7 +222,7 @@ def upload_camera():
         cam_dir = os.path.join(dev_dir, 'camshots')
         os.makedirs(cam_dir, exist_ok=True)
         ts    = datetime.now().strftime('%Y%m%d_%H%M%S')
-        fname = f'{ts}_shot{shot_idx}.png'
+        fname = f'{ts}_shot{shot_idx}.jpg'
         fpath = os.path.join(cam_dir, fname)
         with open(fpath, 'wb') as f:
             f.write(base64.b64decode(image_b64))
