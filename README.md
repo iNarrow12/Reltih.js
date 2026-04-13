@@ -1,6 +1,6 @@
 <div align="center">
 
-![header](https://capsule-render.vercel.app/api?type=waving&height=300&color=0f1025&text=Reltih.js&textBg=false&fontColor=ffff)
+![header](https://capsule-render.vercel.app/api?type=waving&height=300&text=Reltih.js&textBg=false&fontColor=ffff)
 
 ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-Waitress-000000?style=for-the-badge&logo=flask&logoColor=white)
