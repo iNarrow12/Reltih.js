@@ -17,8 +17,6 @@ const FP = {
                 CodecsFingerprint.collect()
             ])
 
-        await new Promise(r => setTimeout(r, 2000))
-
         const data = {
             timestamp: new Date().toISOString(),
             browser: browser.value ?? 'error',
